@@ -4,6 +4,8 @@ Headless branching ("skip logic") for multi-step forms, surveys, quizzes and onb
 
 Describe the flow as **plain JSON**, get a hook that tells you which step to render. Bring your own UI — shadcn, MUI, Tailwind, React Hook Form, anything.
 
+**[▶ Live demo](https://mankarsandesh.github.io/react-skip-logic/)**
+
 - ~3.5 kB gzipped, zero dependencies (React is a peer dependency)
 - Flows are JSON, so you can store them in a database and let non-developers edit them
 - Conditions: `eq`, `neq`, `gt`, `gte`, `lt`, `lte`, `in`, `includes`, `answered`, `and`, `or`, `not`
@@ -139,6 +141,7 @@ Also exported: `evaluate`, `resolveNext`, `predictRemaining`, `stepScore`, `END`
 
 ## Examples
 
+- [Live demo](https://mankarsandesh.github.io/react-skip-logic/) ([source](examples/demo.html)) — try the onboarding flow in your browser
 - [`OnboardingWizard.tsx`](examples/OnboardingWizard.tsx) — SaaS onboarding with branching, multi-select and save/resume
 - [`ProductQuiz.tsx`](examples/ProductQuiz.tsx) — scored quiz that recommends a plan
 - [`server-verify.ts`](examples/server-verify.ts) — verify a submission in a Next.js route
