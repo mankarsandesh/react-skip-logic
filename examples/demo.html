@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>react-skip-logic — live demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF2EF; --surface:#FFFFFF; --ink:#17242E; --muted:#5B6B76; --line:#D5DDD8;
+  --route:#2557D6; --route-soft:#DCE6FB; --off:#B9C3C9;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --sans:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10181F; --surface:#172530; --ink:#E6EDF2; --muted:#93A3AE; --line:#2A3B47;
+    --route:#7DA2FF; --route-soft:#22345A; --off:#3E4F5B;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10181F; --surface:#172530; --ink:#E6EDF2; --muted:#93A3AE; --line:#2A3B47;
+  --route:#7DA2FF; --route-soft:#22345A; --off:#3E4F5B;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+.wrap{max-width:68rem;margin:0 auto;padding:3.5rem 1.25rem 4rem}
+header{max-width:44rem}
+h1{font:700 clamp(2.4rem,7vw,4.6rem)/1 var(--display);letter-spacing:-.03em;margin:0 0 1rem}
+h1 .slash{color:var(--route)}
+.lede{font-size:1.15rem;color:var(--muted);margin:0 0 1.5rem;max-width:36rem}
+.install{display:inline-flex;align-items:center;gap:.75rem;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.55rem .6rem .55rem 1rem;font:500 .95rem var(--mono)}
+.install button{font:500 .85rem var(--sans);border:0;border-radius:7px;padding:.35rem .7rem;background:var(--route-soft);color:var(--ink);cursor:pointer}
+.tabs{display:flex;flex-wrap:wrap;gap:.25rem;margin:3rem 0 .5rem;border-bottom:1px solid var(--line)}
+.tab{font:500 .95rem var(--sans);background:none;border:0;color:var(--muted);padding:.6rem .9rem;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer}
+.tab.is-on{color:var(--ink);border-bottom-color:var(--route)}
+.note{color:var(--muted);margin:.75rem 0 1.25rem}
+.stage{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:1.25rem;align-items:start}
+@media (max-width:760px){.stage{grid-template-columns:1fr}}
+.form,.engine{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1.5rem}
+.form{min-height:22rem;display:flex;flex-direction:column}
+.bar{height:4px;background:var(--line);border-radius:4px;overflow:hidden;margin-bottom:2rem}
+.bar span{display:block;height:100%;background:var(--route);transition:width .35s ease}
+.q{font:600 clamp(1.4rem,3vw,1.85rem)/1.2 var(--display);letter-spacing:-.01em;margin:0 0 1.5rem}
+.q.is-result{color:var(--route)}
+.options{display:flex;flex-direction:column;gap:.5rem}
+.option{font:500 1rem var(--sans);text-align:left;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:10px;padding:.8rem 1rem;cursor:pointer}
+.option:hover{border-color:var(--route)}
+.option.is-picked{border-color:var(--route);background:var(--route-soft)}
+.input{font:400 1.05rem var(--sans);color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:10px;padding:.8rem 1rem;width:100%}
+.input:focus{border-color:var(--route);outline:none}
+.actions{display:flex;justify-content:space-between;gap:.75rem;margin-top:auto;padding-top:2rem}
+.actions button{font:600 .95rem var(--sans);border-radius:10px;padding:.7rem 1.3rem;cursor:pointer}
+.primary{background:var(--route);color:#fff;border:1px solid var(--route)}
+:root[data-theme="dark"] .primary{color:#0D1730}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .primary{color:#0D1730}}
+.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+button:disabled{opacity:.4;cursor:not-allowed}
+button:focus-visible,.input:focus-visible{outline:2px solid var(--route);outline-offset:2px}
+.score{margin:1rem 0 0;color:var(--muted);font-size:.9rem}
+.engine h3{font:600 .95rem var(--sans);margin:0 0 .9rem;color:var(--muted)}
+.engine h3:not(:first-child){margin-top:1.5rem}
+.map{list-style:none;margin:0;padding:0;position:relative}
+.node{display:grid;grid-template-columns:1.25rem 1fr;gap:.6rem;padding:.35rem 0;position:relative}
+.node:not(:last-child)::before{content:"";position:absolute;left:.48rem;top:1.2rem;bottom:-.4rem;width:2px;background:var(--line)}
+.node.is-done:not(:last-child)::before{background:var(--route)}
+.dot{width:1rem;height:1rem;border-radius:50%;margin-top:.2rem;border:2px solid var(--off);background:var(--surface);position:relative;z-index:1}
+.is-done .dot{background:var(--route);border-color:var(--route)}
+.is-current .dot{border-color:var(--route);box-shadow:0 0 0 4px var(--route-soft)}
+.is-ahead .dot{border-style:dashed;border-color:var(--route)}
+.id{font:500 .9rem var(--mono)}
+.is-off .id{color:var(--off);text-decoration:line-through}
+.is-off .rules{opacity:.55}
+.rules{list-style:none;margin:.1rem 0 0;padding:0;font:400 .8rem/1.45 var(--mono);color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem .9rem;font-size:.8rem;color:var(--muted);margin:1rem 0 0}
+.k{display:inline-block;width:.7rem;height:.7rem;border-radius:50%;border:2px solid var(--off);margin-right:-.5rem;vertical-align:-1px}
+.k.done{background:var(--route);border-color:var(--route)}
+.k.current{border-color:var(--route);box-shadow:0 0 0 3px var(--route-soft)}
+.k.ahead{border-style:dashed;border-color:var(--route)}
+.json{font:400 .82rem/1.5 var(--mono);background:var(--bg);border-radius:8px;padding:.9rem 1rem;margin:0;overflow-x:auto;min-height:3.5rem}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.uses{margin-top:4.5rem}
+.uses h2{font:700 clamp(1.6rem,4vw,2.3rem)/1.1 var(--display);letter-spacing:-.02em;margin:0 0 1.5rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:1.75rem 2rem}
+.grid h4{font:600 1.05rem var(--sans);margin:0 0 .3rem}
+.grid p{margin:0;color:var(--muted);max-width:32rem}
+footer{margin-top:4rem;padding-top:1.5rem;border-top:1px solid var(--line);color:var(--muted);font-size:.9rem}
+footer a{color:var(--route)}
+@media (prefers-reduced-motion: reduce){.bar span{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>react<span class="slash">/</span>skip-logic</h1>
+  <p class="lede">Branching for multi-step forms, surveys and quizzes. Describe the flow as JSON, render it with your own components.</p>
+  <div class="install"><span id="cmd">npm install react-skip-logic</span><button type="button" id="copy">Copy</button></div>
+</header>
+<main>
+  <div id="demo"></div>
+  <section class="uses" aria-labelledby="uses-h">
+    <h2 id="uses-h">Where you'd use it</h2>
+    <div class="grid">
+      <div><h4>Product onboarding</h4><p>Ask different questions by role or company size, and send big accounts to sales.</p></div>
+      <div><h4>Surveys and feedback</h4><p>Skip questions that don't apply. Ask “what went wrong?” only after a low NPS score.</p></div>
+      <div><h4>Quizzes and recommenders</h4><p>Score answers and branch on the total to pick a plan, product or course level.</p></div>
+      <div><h4>Support and triage</h4><p>Route tickets, self-serve simple refunds and escalate urgent cases before anyone types a message.</p></div>
+      <div><h4>Quote and application forms</h4><p>Insurance, loans, visas and job applications where later questions depend on earlier ones.</p></div>
+      <div><h4>No-code form builders</h4><p>Flows are plain JSON, so you can store them in a database, edit them in an admin panel and check them with <code>validateFlow()</code>.</p></div>
+    </div>
+  </section>
+</main>
+<footer>MIT licensed. The flow on the right is the same JSON the hook reads, evaluated live.</footer>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script>
+"use strict";var SkipLogic=(()=>{var W=Object.create;var A=Object.defineProperty;var X=Object.getOwnPropertyDescriptor;var Y=Object.getOwnPropertyNames;var Z=Object.getPrototypeOf,_=Object.prototype.hasOwnProperty;var ee=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports),te=(e,t)=>{for(var n in t)A(e,n,{get:t[n],enumerable:!0})},V=(e,t,n,r)=>{if(t&&typeof t=="object"||typeof t=="function")for(let o of Y(t))!_.call(e,o)&&o!==n&&A(e,o,{get:()=>t[o],enumerable:!(r=X(t,o))||r.enumerable});return e};var ne=(e,t,n)=>(n=e!=null?W(Z(e)):{},V(t||!e||!e.__esModule?A(n,"default",{value:e,enumerable:!0}):n,e)),re=e=>V(A({},"__esModule",{value:!0}),e);var B=ee((pe,j)=>{j.exports=window.React});var ie={};te(ie,{END:()=>C,SCORE:()=>$,defineFlow:()=>oe,evaluate:()=>k,isAnswered:()=>m,pickAnswers:()=>h,predictRemaining:()=>E,resolveNext:()=>y,scoreFor:()=>w,stepScore:()=>I,useFlow:()=>P,validateFlow:()=>N,walk:()=>se});var C="$end",$="$score",d=(e,t)=>e===$?t.score:t.answers[e],G=e=>{if(typeof e=="number")return e;if(typeof e=="string"&&e.trim()!==""&&!isNaN(Number(e)))return Number(e)};function m(e){return e==null?!1:typeof e=="string"?e.trim()!=="":Array.isArray(e)?e.length>0:!0}function x(e,t,n,r){let o=G(d(e,n));return o!==void 0&&r(o,t)}function k(e,t){if("and"in e)return e.and.every(n=>k(n,t));if("or"in e)return e.or.some(n=>k(n,t));if("not"in e)return!k(e.not,t);if("answered"in e)return m(d(e.answered,t));if("eq"in e)return d(e.eq[0],t)===e.eq[1];if("neq"in e)return d(e.neq[0],t)!==e.neq[1];if("gt"in e)return x(e.gt[0],e.gt[1],t,(n,r)=>n>r);if("gte"in e)return x(e.gte[0],e.gte[1],t,(n,r)=>n>=r);if("lt"in e)return x(e.lt[0],e.lt[1],t,(n,r)=>n<r);if("lte"in e)return x(e.lte[0],e.lte[1],t,(n,r)=>n<=r);if("in"in e)return e.in[1].includes(d(e.in[0],t));if("includes"in e){let n=d(e.includes[0],t);return Array.isArray(n)&&n.includes(e.includes[1])}throw new Error(`react-skip-logic: unknown condition ${JSON.stringify(e)}`)}var R=e=>e.next===void 0?[]:typeof e.next=="string"?[{goto:e.next}]:e.next;function I(e,t){if(!e.score||!m(t))return 0;let n=Array.isArray(t)?t:[t],r=0;for(let o of n){let u=String(o);u in e.score?r+=e.score[u]:"*"in e.score&&(r+=(G(o)??0)*e.score["*"])}return r}function h(e,t){let n={};for(let r of e)r in t&&(n[r]=t[r]);return n}function w(e,t,n){return t.reduce((r,o)=>r+(e.steps[o]?I(e.steps[o],n[o]):0),0)}function y(e,t,n,r=0){let o=e.steps[t];if(!o)throw new Error(`react-skip-logic: unknown step "${t}"`);let u={answers:n,score:r};for(let s of R(o))if(!s.if||k(s.if,u)){if(s.goto===C)return null;if(!e.steps[s.goto])throw new Error(`react-skip-logic: step "${t}" points to unknown step "${s.goto}"`);return s.goto}return null}function se(e,t){let n=[],r=e.start,o=new Set;for(;r;){if(o.has(r))throw new Error(`react-skip-logic: cycle detected at "${r}"`);o.add(r),n.push(r);let s=e.steps[r],i=h(n,t);if(s.required&&!m(t[r]))return{path:n,completed:!1,score:w(e,n,i),answers:i};r=y(e,r,i,w(e,n,i))}let u=h(n,t);return{path:n,completed:!0,score:w(e,n,u),answers:u}}function E(e,t,n){let r=[],o=new Set(t),u=[...t],s=u[u.length-1];try{for(;;){let i=h(u,n),a=y(e,s,i,w(e,u,i));if(!a||o.has(a))break;o.add(a),r.push(a),u=[...u,a],s=a}}catch{}return r}function M(e,t){"and"in e?e.and.forEach(n=>M(n,t)):"or"in e?e.or.forEach(n=>M(n,t)):"not"in e?M(e.not,t):"answered"in e?t.push(e.answered):t.push(Object.values(e)[0][0])}function N(e){let t=[],n=[],r=Object.keys(e.steps);e.steps[e.start]||t.push({type:"missing-start",message:`Start step "${e.start}" does not exist.`});for(let s of r){let i=R(e.steps[s]);for(let a of i)if(a.goto!==C&&!e.steps[a.goto]&&t.push({type:"unknown-target",step:s,message:`Step "${s}" points to unknown step "${a.goto}".`}),a.if){let c=[];M(a.if,c);for(let f of c)f!==$&&!e.steps[f]&&t.push({type:"unknown-reference",step:s,message:`Step "${s}" has a condition on unknown step "${f}".`})}i.length>0&&i.every(a=>a.if)&&n.push({type:"no-fallback",step:s,message:`Step "${s}" has only conditional transitions; if none match, the flow ends here. Add a { goto } without "if" as a fallback.`})}let o=new Set,u=e.steps[e.start]?[e.start]:[];for(;u.length;){let s=u.shift();if(!o.has(s)){o.add(s);for(let i of R(e.steps[s]))e.steps[i.goto]&&u.push(i.goto)}}for(let s of r)o.has(s)||n.push({type:"unreachable-step",step:s,message:`Step "${s}" can never be reached.`});return{valid:t.length===0,errors:t,warnings:n}}function oe(e){return e}var l=ne(B(),1);var L=(e,t)=>({history:t?.history?.length?t.history:[e.start],answers:t?.answers??{},completed:t?.completed??!1});function P(e,t={}){let[n,r]=(0,l.useState)(()=>L(e,t.initialState)),o=(0,l.useRef)(t);o.current=t,(0,l.useMemo)(()=>{let{errors:p}=N(e);p.length&&console.error(`react-skip-logic: invalid flow
+`+p.map(g=>" - "+g.message).join(`
+`))},[e]);let u=(0,l.useRef)(!0);(0,l.useEffect)(()=>{if(u.current){u.current=!1;return}o.current.onChange?.(n)},[n]);let{history:s,answers:i,completed:a}=n,c=s[s.length-1],f=e.steps[c],q=(0,l.useMemo)(()=>h(s,i),[s,i]),T=(0,l.useMemo)(()=>w(e,s,q),[e,s,q]),O=(0,l.useMemo)(()=>a?[]:E(e,s,i),[e,s,i,a]),D=!a&&!(f?.required&&!m(i[c])),v=(0,l.useCallback)((p,g)=>{r(b=>({...b,answers:{...b.answers,[p]:g}}))},[]),J=(0,l.useCallback)(p=>v(c,p),[v,c]),F=(0,l.useCallback)(p=>{if(a||f?.required&&!m(p[c]))return!1;let g=h(s,p),b=w(e,s,g),U=y(e,c,g,b);return U===null?(r(S=>({...S,answers:p,completed:!0})),o.current.onComplete?.({answers:g,path:s,score:b}),!0):(r(S=>({...S,answers:p,history:[...S.history,U]})),!0)},[a,f,c,s,e]),z=(0,l.useCallback)(()=>F(i),[F,i]),H=(0,l.useCallback)(p=>F({...i,[c]:p}),[F,i,c]),K=(0,l.useCallback)(()=>{r(p=>p.completed?{...p,completed:!1}:p.history.length<=1?p:{...p,history:p.history.slice(0,-1)})},[]),Q=(0,l.useCallback)(()=>r(L(e)),[e]);return{stepId:c,step:f,meta:f?.meta,answer:i[c],answers:i,setAnswer:J,setAnswerFor:v,next:z,submit:H,back:K,reset:Q,canGoBack:a||s.length>1,canGoNext:D,isLastStep:O.length===0,isComplete:a,progress:a?1:(s.length-1)/(s.length+O.length),score:T,history:s,state:n}}return re(ie);})();
+</script>
+<script>
+const { useFlow, validateFlow } = SkipLogic;
+const { useState, createElement: h, Fragment } = React;
+
+const FLOWS = {
+  onboarding: {
+    label: "SaaS onboarding",
+    note: "Developers see an extra question. Teams of 50+ are routed to sales.",
+    flow: {
+      start: "role",
+      steps: {
+        role: { required: true, meta: { title: "What best describes you?", type: "choice", options: [["developer", "Developer"], ["designer", "Designer"], ["manager", "Manager"]] },
+          next: [{ if: { eq: ["role", "developer"] }, goto: "stack" }, { goto: "teamSize" }] },
+        stack: { meta: { title: "Which tools do you use?", type: "multi", options: [["react", "React"], ["vue", "Vue"], ["node", "Node.js"], ["php", "PHP"]] }, next: "teamSize" },
+        teamSize: { required: true, meta: { title: "How many people are on your team?", type: "number" },
+          next: [{ if: { gte: ["teamSize", 50] }, goto: "sales" }, { goto: "welcome" }] },
+        sales: { meta: { title: "Larger teams get a guided setup. Where should we reach you?", type: "text", placeholder: "you@company.com" }, next: "welcome" },
+        welcome: { meta: { title: "Your workspace is ready.", type: "result" } },
+      },
+    },
+  },
+  quiz: {
+    label: "Plan recommender",
+    note: "Each answer adds points. The result depends on the total score.",
+    flow: {
+      start: "frequency",
+      steps: {
+        frequency: { meta: { title: "How often do you send surveys?", type: "choice", auto: true, options: [["rarely", "A few times a year"], ["monthly", "Monthly"], ["weekly", "Every week"]] },
+          score: { rarely: 0, monthly: 1, weekly: 2 }, next: "audience" },
+        audience: { meta: { title: "Who answers them?", type: "choice", auto: true, options: [["team", "My team"], ["customers", "Customers"], ["both", "Both"]] },
+          score: { team: 0, customers: 1, both: 2 },
+          next: [{ if: { gte: ["$score", 3] }, goto: "pro" }, { if: { gte: ["$score", 1] }, goto: "starter" }, { goto: "free" }] },
+        free: { meta: { title: "The Free plan covers you.", type: "result" } },
+        starter: { meta: { title: "Starter is the best fit.", type: "result" } },
+        pro: { meta: { title: "Go with Pro for automation and branching.", type: "result" } },
+      },
+    },
+  },
+  triage: {
+    label: "Support triage",
+    note: "Refunds over £100 and critical bugs are escalated to a person.",
+    flow: {
+      start: "topic",
+      steps: {
+        topic: { required: true, meta: { title: "What do you need help with?", type: "choice", auto: true, options: [["billing", "Billing"], ["bug", "Something is broken"], ["other", "Something else"]] },
+          next: [{ if: { eq: ["topic", "billing"] }, goto: "amount" }, { if: { eq: ["topic", "bug"] }, goto: "severity" }, { goto: "details" }] },
+        amount: { required: true, meta: { title: "How much is the refund for, in £?", type: "number" },
+          next: [{ if: { gt: ["amount", 100] }, goto: "escalate" }, { goto: "autoRefund" }] },
+        severity: { required: true, meta: { title: "How bad is it?", type: "choice", auto: true, options: [["low", "Annoying"], ["high", "Blocking my work"], ["critical", "Data loss or outage"]] },
+          next: [{ if: { eq: ["severity", "critical"] }, goto: "escalate" }, { goto: "details" }] },
+        details: { meta: { title: "Tell us a bit more.", type: "text", placeholder: "What happened?" }, next: "ticket" },
+        autoRefund: { meta: { title: "Refund approved. It will reach you in 3–5 days.", type: "result" } },
+        escalate: { meta: { title: "A person from support will call you within the hour.", type: "result" } },
+        ticket: { meta: { title: "Ticket created. We'll reply by email.", type: "result" } },
+      },
+    },
+  },
+};
+
+const fmtCond = (c) => {
+  if (c.and) return c.and.map(fmtCond).join(" and ");
+  if (c.or) return c.or.map(fmtCond).join(" or ");
+  if (c.not) return "not (" + fmtCond(c.not) + ")";
+  if (c.answered) return c.answered + " is answered";
+  const ops = { eq: "=", neq: "≠", gt: ">", gte: "≥", lt: "<", lte: "≤", in: "in", includes: "includes" };
+  const k = Object.keys(c)[0];
+  const [ref, v] = c[k];
+  return `${ref} ${ops[k]} ${JSON.stringify(v)}`;
+};
+
+const rulesOf = (step) => {
+  if (!step.next) return ["finishes"];
+  if (typeof step.next === "string") return ["→ " + step.next];
+  return step.next.map((t) => (t.if ? `if ${fmtCond(t.if)} → ${t.goto}` : `otherwise → ${t.goto}`));
+};
+
+function Field({ f }) {
+  const { meta, answer, setAnswer, submit } = f;
+  if (meta.type === "choice")
+    return h("div", { className: "options", role: "radiogroup", "aria-label": meta.title },
+      meta.options.map(([v, l]) => h("button", {
+        key: v, type: "button", role: "radio", "aria-checked": answer === v,
+        className: "option" + (answer === v ? " is-picked" : ""),
+        onClick: () => (meta.auto ? submit(v) : setAnswer(v)),
+      }, l)));
+  if (meta.type === "multi") {
+    const sel = answer || [];
+    return h("div", { className: "options" },
+      meta.options.map(([v, l]) => h("button", {
+        key: v, type: "button", "aria-pressed": sel.includes(v),
+        className: "option" + (sel.includes(v) ? " is-picked" : ""),
+        onClick: () => setAnswer(sel.includes(v) ? sel.filter((x) => x !== v) : [...sel, v]),
+      }, l)));
+  }
+  if (meta.type === "number")
+    return h("input", { className: "input", type: "number", inputMode: "numeric", autoFocus: true, "aria-label": meta.title,
+      value: answer ?? "", onChange: (e) => setAnswer(e.target.value === "" ? undefined : e.target.valueAsNumber),
+      onKeyDown: (e) => e.key === "Enter" && f.next() });
+  if (meta.type === "text")
+    return h("input", { className: "input", type: "text", autoFocus: true, "aria-label": meta.title, placeholder: meta.placeholder,
+      value: answer ?? "", onChange: (e) => setAnswer(e.target.value), onKeyDown: (e) => e.key === "Enter" && f.next() });
+  return null;
+}
+
+function Demo({ def }) {
+  const [done, setDone] = useState(null);
+  const f = useFlow(def.flow, { onComplete: setDone });
+  const { meta } = f;
+  const isResult = meta.type === "result";
+
+  const ahead = new Set();
+  // Predicted path: re-use the engine
+  SkipLogic.predictRemaining(def.flow, f.history, f.answers).forEach((s) => ahead.add(s));
+
+  const statusOf = (id) =>
+    id === f.stepId ? "current" : f.history.includes(id) ? "done" : ahead.has(id) ? "ahead" : "off";
+
+  const shownAnswers = SkipLogic.pickAnswers(f.history, f.answers);
+
+  return h("div", { className: "stage" },
+    h("section", { className: "form", "aria-live": "polite" },
+      h("div", { className: "bar", role: "progressbar", "aria-valuenow": Math.round(f.progress * 100), "aria-valuemin": 0, "aria-valuemax": 100 },
+        h("span", { style: { width: (isResult ? 100 : f.progress * 100) + "%" } })),
+      h("h2", { className: "q" + (isResult ? " is-result" : "") }, meta.title),
+      !isResult && h(Field, { f }),
+      h("div", { className: "actions" },
+        h("button", { className: "ghost", onClick: f.back, disabled: f.history.length < 2 }, "Back"),
+        isResult
+          ? h("button", { className: "primary", onClick: () => { setDone(null); f.reset(); } }, "Start again")
+          : !meta.auto && h("button", { className: "primary", onClick: f.next, disabled: !f.canGoNext }, "Next")),
+      def.flow.steps.frequency && h("p", { className: "score" }, "Score so far: ", h("b", null, f.score))),
+    h("section", { className: "engine" },
+      h("h3", null, "What the engine sees"),
+      h("ol", { className: "map" },
+        Object.entries(def.flow.steps).map(([id, step]) => h("li", { key: id, className: "node is-" + statusOf(id) },
+          h("span", { className: "dot", "aria-hidden": true }),
+          h("div", null,
+            h("code", { className: "id" }, id),
+            h("span", { className: "sr" }, " — " + statusOf(id)),
+            h("ul", { className: "rules" }, rulesOf(step).map((r, i) => h("li", { key: i }, r))))))),
+      h("p", { className: "legend" },
+        h("span", { className: "k done" }), "visited ",
+        h("span", { className: "k current" }), "current ",
+        h("span", { className: "k ahead" }), "predicted ",
+        h("span", { className: "k off" }), "skipped"),
+      h("h3", null, "Answers on this path"),
+      h("pre", { className: "json" }, JSON.stringify(shownAnswers, null, 2))));
+}
+
+function App() {
+  const [key, setKey] = useState("onboarding");
+  const def = FLOWS[key];
+  return h(Fragment, null,
+    h("div", { className: "tabs", role: "tablist" },
+      Object.entries(FLOWS).map(([k, d]) => h("button", {
+        key: k, role: "tab", "aria-selected": k === key, className: "tab" + (k === key ? " is-on" : ""), onClick: () => setKey(k),
+      }, d.label))),
+    h("p", { className: "note" }, def.note),
+    h(Demo, { key, def }));
+}
+
+Object.values(FLOWS).forEach((d) => { const r = validateFlow(d.flow); if (!r.valid) console.error(r.errors); });
+ReactDOM.createRoot(document.getElementById("demo")).render(h(App));
+document.getElementById("copy").addEventListener("click", async (e) => {
+  try { await navigator.clipboard.writeText(document.getElementById("cmd").textContent); e.target.textContent = "Copied"; }
+  catch { e.target.textContent = "Select and copy"; }
+  setTimeout(() => (e.target.textContent = "Copy"), 1500);
+});
+</script></body></html>

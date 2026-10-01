@@ -1,0 +1,9 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "baseUrl": "..",
+    "paths": { "react-skip-logic": ["src/index.ts"], "react-skip-logic/core": ["src/core.ts"] }
+  },
+  "include": ["."]
+}
